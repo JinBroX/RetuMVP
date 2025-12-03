@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
-const MY_USER_ID = "你的_USER_UID_粘贴在这里"; // ⚠️ 必须确认这个ID和数据库里的一样
+const MY_USER_ID = "44d8c402-a7b8-45c3-9a81-cfaddbcc21c4"; // ⚠️ 必须确认这个ID和数据库里的一样
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
