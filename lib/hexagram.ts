@@ -1,5 +1,5 @@
 // lib/hexagram.ts
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 /**
  * 核心数据结构
