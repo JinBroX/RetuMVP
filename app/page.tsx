@@ -1,65 +1,153 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
+
+// --- 配置区域 ---
+// TODO: 在内测阶段，为了跳过登录页，我们要把 User UID 硬编码在这里
+// 请把刚才复制的 UID 填在引号里！
+const MY_USER_ID = "44d8c402-a7b8-45c3-9a81-cfaddbcc21c4"; 
+const API_URL = "/api/generate-chapter";
+
+// --- 初始化 Supabase (前端模式) ---
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function Home() {
+  // 状态管理
+  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [story, setStory] = useState<string>("");
+  const [hexagram, setHexagram] = useState<any>(null);
+  const [logs, setLogs] = useState<any[]>([]);
+
+  // 1. 加载用户数据
+  useEffect(() => {
+    fetchProfile();
+    fetchHistory();
+  }, []);
+
+  async function fetchProfile() {
+    const { data } = await supabase.from("profiles").select("*").eq("id", MY_USER_ID).single();
+    if (data) {
+        setProfile(data);
+        // 如果还没开始第一章，显示初始背景
+        if (data.current_chapter === 0) setStory(data.summary_context); 
+    }
+  }
+
+  async function fetchHistory() {
+    const { data } = await supabase.from("story_logs").select("*").eq("user_id", MY_USER_ID).order("chapter_index", { ascending: false });
+    if (data) setLogs(data);
+  }
+
+  // 2. Zen-Tap 摇卦核心动作
+  async function handleZenTap() {
+    if (loading) return;
+    if (profile.la_coin < 10) {
+      alert("腊币不足！请充值 (MVP暂未开放)");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // 调用我们在后端写好的 API
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uid: MY_USER_ID }),
+      });
+      
+      const data = await res.json();
+      
+      if (data.success) {
+        setStory(data.story);     // 更新当前故事
+        setHexagram(data.hexagram); // 更新卦象显示
+        fetchProfile();           // 刷新属性(扣钱了)
+        fetchHistory();           // 刷新历史记录
+      } else {
+        alert("生成失败: " + data.error);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("网络错误");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // --- 界面渲染 ---
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen bg-black text-gray-200 font-sans flex flex-col items-center p-4">
+      {/* 顶部状态栏 */}
+      <header className="w-full max-w-md flex justify-between items-center py-4 border-b border-gray-800">
+        <h1 className="text-xl font-bold text-white tracking-widest">RETU 热土</h1>
+        <div className="flex gap-4 text-sm">
+          <div className="text-yellow-500">🪙 {profile?.la_coin || 0}</div>
+          <div className="text-blue-400">⚡ {profile?.attributes?.stamina || 0}</div>
+          <div className="text-purple-400">🔮 {profile?.attributes?.wisdom || 0}</div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </header>
+
+      {/* 核心互动区：Zen-Tap */}
+      <div className="my-10 flex flex-col items-center justify-center">
+        <div 
+          onClick={handleZenTap}
+          className={`
+            relative w-48 h-48 rounded-full flex items-center justify-center cursor-pointer transition-all duration-700
+            ${loading ? "scale-90 opacity-50" : "hover:scale-105 active:scale-95"}
+            bg-gradient-to-b from-gray-900 to-black border border-gray-700 shadow-[0_0_50px_rgba(255,255,255,0.1)]
+          `}
+        >
+          {/* 呼吸光效 */}
+          <div className="absolute inset-0 rounded-full animate-pulse border border-gray-600 opacity-30"></div>
+          
+          {loading ? (
+            <span className="text-xs animate-bounce">感应天道...</span>
+          ) : (
+            <div className="text-center">
+              {hexagram ? (
+                <>
+                  <div className="text-4xl mb-2">{/* 这里可以放卦象符号 */}☷</div>
+                  <div className="text-lg font-bold text-white">{hexagram.id}</div>
+                </>
+              ) : (
+                <span className="text-gray-500 text-sm tracking-widest">点击感应</span>
+              )}
+            </div>
+          )}
         </div>
-      </main>
-    </div>
+        
+        {/* 卦象结果展示 */}
+        {hexagram && !loading && (
+          <div className="mt-6 text-center animate-fade-in">
+             <p className="text-xs text-gray-500">本卦</p>
+             <h2 className="text-2xl font-serif text-white mt-1">待解之卦</h2>
+          </div>
+        )}
+      </div>
+
+      {/* 故事阅读器 */}
+      <section className="w-full max-w-md bg-gray-900/50 p-6 rounded-xl border border-gray-800 mb-20">
+        <h3 className="text-xs font-bold text-gray-500 uppercase mb-4">
+          Chapter {profile?.current_chapter || 0}
+        </h3>
+        
+        <div className="prose prose-invert leading-relaxed text-gray-300">
+          {loading ? (
+            <div className="space-y-3">
+              <div className="h-2 bg-gray-800 rounded w-3/4 animate-pulse"></div>
+              <div className="h-2 bg-gray-800 rounded w-full animate-pulse"></div>
+              <div className="h-2 bg-gray-800 rounded w-5/6 animate-pulse"></div>
+            </div>
+          ) : (
+            story.split('\n').map((line, i) => <p key={i} className="mb-2">{line}</p>)
+          )}
+        </div>
+      </section>
+      
+    </main>
   );
 }
