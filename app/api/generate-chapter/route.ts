@@ -1,8 +1,9 @@
 // app/api/generate-chapter/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { generateDailyHexagram } from '@/lib/hexagram';
+
+export const runtime = 'edge'; // 启用 Edge 运行时，速度更快
 
 // 1. 初始化 Supabase
 const supabase = createClient(
@@ -10,22 +11,20 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-// 2. 初始化 Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-
 // 简单卦名映射
 const HEXAGRAM_MAP: Record<string, string> = {
-  "Q1": "乾卦 (天行健，自强不息)", 
-  "Q2": "坤卦 (地势坤，厚德载物)",
-  // 如果遇到没定义的，代码会自动处理
+  "Q1": "乾卦", "Q2": "坤卦", "Q3": "屯卦", "Q4": "蒙卦", 
+  // DeepSeek 懂易经，这里其实不传全也没关系，它自己能编
 };
 
 export async function POST(req: NextRequest) {
   try {
     const { uid } = await req.json();
+    
+    // IP 获取逻辑 (Edge 兼容)
     const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
 
-    // A.读取用户数据
+    // A. 读取用户数据
     const { data: userProfile } = await supabase
       .from('profiles')
       .select('*')
@@ -33,52 +32,60 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (!userProfile) return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    
-    // 暂时注释掉腊币检查，方便您测试
-    // if (userProfile.la_coin < 10) return NextResponse.json({ error: 'La Coin 不足' }, { status: 403 });
 
-    // B. 摇卦算法
+    // B. 摇卦
     const hexResult = generateDailyHexagram(uid, ip);
     const mainHexId = hexResult.hexagrams.main.id;
-    const hexName = HEXAGRAM_MAP[mainHexId] || `卦象ID: ${mainHexId}`;
+    const hexName = HEXAGRAM_MAP[mainHexId] || `卦象${mainHexId}`;
 
-    // C. 构造 Prompt
-    const prompt = `
-    你是一个专业的TRPG游戏主持人和小说家。请根据以下信息生成故事的下一章。
-    
-    【角色信息】
-    - 姓名: ${userProfile.username}
-    - 状态: 体力 ${userProfile.attributes.stamina}, 智慧 ${userProfile.attributes.wisdom}
-    - 前情提要: ${userProfile.summary_context || "冒险刚刚开始。"}
-    
-    【今日随机事件/运势】
-    - 卦象: ${hexName}
-    - 卦意要求: 请将此卦象的哲理（如险阻、通达、变革）隐喻地融入剧情中。
-
-    【生成要求】
-    1. 剧情长度约 200 字。
-    2. 结尾必须给出 2 个明确的行动选项（A 和 B）。
-    3. **必须只返回纯 JSON 格式**，不要包含 markdown 标记（如 \`\`\`json ），格式如下：
+    // C. 构造 DeepSeek Prompt
+    const systemPrompt = `你是一个基于易经卦象的魔幻现实主义小说家。
+    请输出纯 JSON 格式，不要包含 markdown 代码块（不要用 \`\`\`json）。
+    格式要求:
     {
-      "story": "这里是故事正文...",
-      "options": ["A. 选项一内容", "B. 选项二内容"],
-      "summary": "这里是供AI记忆的新摘要(50字内)"
-    }
+      "story": "200字左右的紧凑剧情，富有文学性",
+      "options": ["A. 选项1", "B. 选项2"],
+      "summary": "50字内的剧情摘要"
+    }`;
+
+    const userPrompt = `
+    角色: ${userProfile.username}
+    状态: 体力${userProfile.attributes.stamina}, 智慧${userProfile.attributes.wisdom}
+    前情: ${userProfile.summary_context || "冒险开始。"}
+    
+    今日卦象: 【${hexName}】
+    要求: 将此卦象的哲学含义（如潜龙勿用、否极泰来）隐喻地写进故事。结尾给出两个行动选项。
     `;
 
-    // D. 调用 Gemini Flash 模型
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    
-    // 处理 Gemini 返回的文本 (去掉可能存在的 markdown 格式符号)
-    let text = response.text();
-    text = text.replace(/```json/g, "").replace(/```/g, "").trim();
-    
-    const aiContent = JSON.parse(text);
+    // D. 调用 DeepSeek API (原生 fetch)
+    const response = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "deepseek-chat", // 或者 deepseek-coder, deepseek-chat 更适合写作
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
+        temperature: 1.3, // 稍微调高一点，让故事更有创意
+        response_format: { type: "json_object" } // 强制 JSON (V3支持)
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error("DeepSeek API Error:", errorData);
+      throw new Error(`DeepSeek API Error: ${response.status}`);
+    }
+
+    const aiData = await response.json();
+    const contentStr = aiData.choices[0].message.content;
+    const aiContent = JSON.parse(contentStr);
 
     // E. 存入数据库
-    // 1. 记录故事
     await supabase.from('story_logs').insert({
       user_id: uid,
       chapter_index: userProfile.current_chapter + 1,
@@ -87,7 +94,6 @@ export async function POST(req: NextRequest) {
       options: aiContent.options
     });
 
-    // 2. 更新用户状态 (扣费 + 更新摘要 + 章节+1)
     await supabase.from('profiles').update({
       la_coin: userProfile.la_coin - 10,
       current_chapter: userProfile.current_chapter + 1,
@@ -101,7 +107,7 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error("API Error:", error);
+    console.error("Runtime Error:", error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }
