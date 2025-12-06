@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUniversalState } from '@/core/clock';
+import { Location, NPC, TimeState, UserProfile } from '@/types/story';
 
 // 初始化 Supabase 客户端
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -13,11 +14,11 @@ const DEV_MODE_SKIP_DB = process.env.NODE_ENV === 'development' || false;
 
 // 辅助函数：生成长篇叙事
 function generateDetailedNarrative(
-  location: any, 
-  parentLocation: any, 
-  npcs: any[], 
-  timeState: any, 
-  user: any
+  location: Location, 
+  parentLocation: Location | null, 
+  npcs: NPC[], 
+  timeState: TimeState, 
+  user: UserProfile
 ): string {
   const { retuYear, era, exactTime, isDay } = timeState;
   const timeDesc = isDay ? "白昼" : "深夜";
@@ -192,7 +193,7 @@ export async function POST(req: Request) {
       } else {
         userProfile = data;
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('User profile error:', err);
       return NextResponse.json({ error: 'User profile error' }, { status: 500 });
     }
@@ -269,7 +270,7 @@ export async function POST(req: Request) {
         ]
       };
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Story generation failed:', err);
       storyData = {
         id: `fallback_${Date.now()}`,
@@ -280,9 +281,8 @@ export async function POST(req: Request) {
       };
     }
 
-    // 5. 变量替换 (Legacy support)
-    let finalContent = storyData.content;
-    finalContent = finalContent.replace(/{username}/g, userProfile.username || '旅行者');
+    // 5. 变量替换 (Legacy support) - Removed unused variable
+    // finalContent logic was unused as it wasn't returned
 
     // 6. 扣费与记录 (Non-blocking)
     if (!DEV_MODE_SKIP_DB) {
@@ -311,8 +311,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json(storyData);
 
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('API Fatal Error:', err);
-    return NextResponse.json({ error: 'Internal Server Error', details: err.message }, { status: 500 });
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return NextResponse.json({ error: 'Internal Server Error', details: message }, { status: 500 });
   }
 }
