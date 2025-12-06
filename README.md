@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+### 1. 核心权力与对立机构 (Core Hierarchical Institutions) - 一级母表
 
-## Getting Started
+这些机构是宇宙中权力、秩序和混乱的顶层具象化。
 
-First, run the development server:
+| 机构名称 (一级)                   | 核心定位 (Parent Entity)  | 关键设定                                              | 子系统/二级机构 (待填充)      |
+| --------------------------- | --------------------- | ------------------------------------------------- | ------------------- |
+| **中央协议委员会 (CPC)**           | 宇宙最高治理与立法者            | 象征绝对的、不可撼动的**中心化秩序**；制定所有底层数字协议（如：协议：信息自洽）。       | 执法局、审计署、最高仲裁庭       |
+| **热土网络集团 (HomeLand )**      | 垄断 BCI 虚拟宇宙与精神资产的超级企业 | 统治**“意识投影空间 (The Loop)”**；掌控人类记忆交易和存储；**记忆市场**的母公 | 记忆市场、神经接口技术部、安全防御系统 |
+| **爬虫联盟 (Crawler Alliance)** | 反抗秩序的去中心化信息组织         | 泛指所有独立黑客和信息走私者；专注于解构 Aeterna Mirror 和 CPC 的协议。    | 薇拉小组、加密联络网、硬件走私渠道   |
+| **国民武装警察部队**                | CPC宇宙的暴力机关            | 执法者、维护CPC宇宙秩序者                                    | 警署、行动科              |
+| **自由意志武装**                  | 反抗武装、抵抗组织             | 反抗整个CPC控制下的宇宙体系的地下武装力量                            | 第一、第二、第x独立团         |
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 2. 关键锚点 NPC (Key Anchor NPCs)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+这些人物在故事中具有固定身份和影响力，用于推动主线和支线。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| NPC 名称                     | 职能定位                                    | 叙事关系与重要性                                                      |
+| -------------------------- | --------------------------------------- | ------------------------------------------------------------- |
+| **“观测者” (The Observer)**   | 热土网络集团旗下**记忆市场**的看门人，掌握着宇宙中所有信息流动的历史记录。 | **中立/导师型**。掌握关键线索，但绝不直接干预。是玩家进行 **“悟性觉醒”** 任务链的触发者。           |
+| **薇拉 (Vera)**              | **爬虫联盟**中最活跃的加密信息联络员，年轻且激进的黑客。          | **盟友/情感连接型**。玩家在地下世界的接口，会为玩家提供高风险的“解构协议”任务。其命运与玩家的**道德值**强相关。 |
+| **警督 K-9 (Inspector K-9)** | 国民警察总队高级执行官，对协议的忠诚度极高。                  | **主要反派/秩序具象化**。是 CPC 意志的代表，会根据玩家的**声望**进行针对性追捕。               |
+| **接线员**                    | 热土脑机接口管理员，负责对齐人物现实与热土时间线                | 主要节点。玩家进出热土虚拟世界的唯一调度员和接线管理，他会把其他玩家信息按照玩家付费情况予以加载              |
+| 侦查员                        | 自由意志武装的特种行动人员                           | 即是NPC也可能是玩家角色。                                                |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. 通用资产与技术 (Universal Assets & Technology)
 
-## Learn More
+定义社会运行的技术和经济基础。
 
-To learn more about Next.js, take a look at the following resources:
+| 资产/技术名称                | 设定与要求                       | 备注                                                |
+| ---------------------- | --------------------------- | ------------------------------------------------- |
+| **$La Coin 代币（模拟）**    | MVP 阶段的**“宇宙贡献度”**。是唯一通用通货。 | 用于购买**“互动机会”**（消耗模拟）和稀有信息，以及日常消耗。以La为单位。          |
+| **赛博义体 (Cybernetics)** | 人体机械改造部件，分为战斗型、潜行型和感知增强型。   | 玩家**“体力”**和**“悟性”**的直接载体。义体需要定期使用 $LORE 维护（损耗模拟）。 |
+| **记忆钱包 ()**            | 故事中的关键道具。用于买卖记忆包括现实和热土虚拟世界  | 重点交易物，可增强某种属性                                     |
+| **信息迷彩 (Info-Camo)**   | 一种网络隐身技术，短暂地将分身从信息流中抹除。     | 玩家用于规避警卫队追捕或进行高风险潜入。                              |
+| **机械警犬**               | 国民武装警察的辅助暴力机械               | 警犬携带微型无人机，无孔不入，捕杀爬虫联盟和抵抗武装                        |
+| **热土脑机**               | 接入热土虚拟世界的机器                 |                                                   |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 4. 核心地理场景 (Core Geographic Scenes)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+定义故事发生的几个关键区域，LLM 需围绕这些场景进行深度描写。
 
-## Deploy on Vercel
+| 场景名称                | 核心特征与功能                                            | 叙事意义                                      |
+| ------------------- | -------------------------------------------------- | ----------------------------------------- |
+| **新都 - 下城 404 区**   | 终年被酸雨笼罩的贫民窟，霓虹灯破败，充满义体黑市和非法娱乐场所。                   | **玩家的起始点和主要活动区域**。象征着混乱、机遇与贫富差距。          |
+| **“赤色记忆”茶馆**        | 一家位于 404 区深处的地下联络点，表面是茶馆，实则为信息贩子的聚集地。              | **爬虫联盟**的联络点，关键 NPC 的锚点。玩家进行信息交易和任务触发的中心。 |
+| **CPC 数据尖塔**        | 位于城市中央，直插云霄的巨型服务器集群。是 CPC 的物理权力中心。                 | **高难度任务目标地**。象征着秩序的堡垒，极难渗透。               |
+| **热土世界 (HomeLand)** | **热土集团**管理下的高度加密的虚拟网络空间，玩家在其中进行**“悟性”**相关的解构和黑客任务。 | **悟性觉醒** 任务发生地，纯精神战斗场景。                   |
+| **九峰山**             | 新都边界外的广大山区。自由意志武装的根据地                              | 升级、角色转换、任务领取等关键场景                         |
+| **可扩展槽位**           | 用于Ai生成的地理场景，并被多用户使用。                               | 因多用户使用，且在关键环节起作用，因此会被标记为固定设定。             |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+retu-mvp/
+├── app/
+│   ├── (前端路由 - 全部是空壳 Page)
+│   ├── workshop/            <-- 【PC端·车间】(原 Admin) 负责批量生产
+│   │   └── page.tsx         (引用 components/StudioPanel)
+│   │
+│   ├── theater/             <-- 【PC/手机·剧场】(原 Story) 负责阅读
+│   │   └── page.tsx         (引用 components/ReaderView)
+│   │
+│   ├── spark/               <-- 【手机端·灵感】(新功能!) 负责随时录入素材
+│   │   └── page.tsx         (引用 components/SparkMemo)
+│   │
+│   ├── (后端接口 - 动词)
+│   ├── api/
+│   │   ├── craft-story/     <-- 生产接口
+│   │   └── fetch-story/     <-- 读取接口
+│   │
+│   ├── page.tsx             (首页，引用 components/HomeEntry)
+│   └── layout.tsx
+│
+├── components/              <-- 【UI与其逻辑 - 您的主战场】
+│   ├── StudioPanel.tsx      (生产后台逻辑)
+│   ├── ReaderView.tsx       (阅读器逻辑)
+│   ├── HomeEntry.tsx        (首页逻辑)
+│   └── SparkMemo.tsx        (手机录入逻辑 - 下面我会给代码)
+│
+└── core/                    <-- 【原本的 lib】
+    └── ... (json 设定文件)
+
