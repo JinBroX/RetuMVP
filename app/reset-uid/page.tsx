@@ -4,16 +4,15 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function ResetUIDPage() {
-  const [status, setStatus] = useState<'initial' | 'clearing' | 'cleared' | 'error'>('initial');
+  const [status, setStatus] = useState<'initial' | 'clearing' | 'cleared' | 'error'>('clearing');
   const router = useRouter();
 
   useEffect(() => {
     // 自动清除旧的UID
     try {
-      setStatus('clearing');
       localStorage.removeItem('zen_uid');
       console.log('旧UID已清除，将生成新的UUID格式ID');
-      setStatus('cleared');
+      setTimeout(() => setStatus('cleared'), 0);
       
       // 3秒后跳转到首页
       setTimeout(() => {
@@ -21,7 +20,7 @@ export default function ResetUIDPage() {
       }, 3000);
     } catch (error) {
       console.error('清除UID失败:', error);
-      setStatus('error');
+      setTimeout(() => setStatus('error'), 0);
     }
   }, [router]);
 
@@ -44,7 +43,7 @@ export default function ResetUIDPage() {
       )}
       
       {status === 'error' && (
-        <div className="text-xl text-red-500">清除失败，请手动在浏览器控制台执行：localStorage.removeItem('zen_uid')</div>
+        <div className="text-xl text-red-500">清除失败，请手动在浏览器控制台执行：localStorage.removeItem(&apos;zen_uid&apos;)</div>
       )}
       
       <div className="mt-12 text-gray-500 text-sm max-w-md">

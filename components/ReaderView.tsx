@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { generateUserId } from '@/lib/uid';
-import { StoryData, UserProfile } from '@/types/story';
+import { StoryData, StoryOption, UserProfile } from '@/types/story';
 
 // 初始化 Supabase
 const supabase = createClient(
@@ -81,6 +81,7 @@ export default function ReaderView() {
       }
     }
     init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 加载章节
@@ -130,7 +131,7 @@ export default function ReaderView() {
     }
   }
 
-  const handleOptionClick = (_index: number) => {
+  const handleOptionClick = () => {
     if (userId) {
       loadNextChapter(userId);
     }
@@ -240,16 +241,16 @@ export default function ReaderView() {
           {/* 选项区域 */}
           <div className="p-8 pt-0">
             <div className="grid gap-4">
-              {story?.options?.map((opt: any, index: number) => (
+              {story?.options?.map((opt: StoryOption | string, index: number) => (
                 <button
                   key={index}
-                  onClick={() => handleOptionClick(index)}
+                  onClick={() => handleOptionClick()}
                   className="w-full text-left p-5 border border-[var(--cyber-border)] bg-[rgba(255,255,255,0.05)] hover:bg-[var(--cyber-primary)]/10 hover:border-[var(--cyber-primary)] transition-all duration-300 rounded-lg group relative overflow-hidden"
                 >
                   <div className="absolute left-0 top-0 h-full w-1 bg-[var(--cyber-primary)] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <span className="text-[var(--cyber-primary)] font-bold mr-3">0{index + 1}</span>
                   <span className="group-hover:text-white transition-colors">
-                    {opt.text || opt}
+                    {typeof opt === 'string' ? opt : opt.text}
                   </span>
                 </button>
               ))}
