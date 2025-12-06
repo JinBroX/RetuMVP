@@ -246,7 +246,7 @@ const HomeEntry = () => {
       `}</style>
 
       <div className="text-9xl font-bold text-white text-center z-10 shadow-lg">Retu</div>
-      <div className="text-2xl text-white text-center mt-5 shadow-lg">点击任意圆形获取全息信息</div>
+      <div className="text-2xl text-white text-center mt-5 shadow-lg">点击任意圆形开始新的世界</div>
 
       {circles.map((circle) => (
         <div
