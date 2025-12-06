@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { generateUserId } from '@/lib/uid';
+import { StoryData, UserProfile } from '@/types/story';
 
 // 初始化 Supabase
 const supabase = createClient(
@@ -11,11 +12,11 @@ const supabase = createClient(
 );
 
 export default function ReaderView() {
-  const [story, setStory] = useState<any>(null);
+  const [story, setStory] = useState<Partial<StoryData> | null>(null);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
-  const [userProfile, setUserProfile] = useState<any>(null);
-  const [currentHexagram, setCurrentHexagram] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [currentHexagram, setCurrentHexagram] = useState<string | null>(null);
 
   // 初始化用户和加载故事
   useEffect(() => {
@@ -129,7 +130,7 @@ export default function ReaderView() {
     }
   }
 
-  const handleOptionClick = (index: number) => {
+  const handleOptionClick = (_index: number) => {
     if (userId) {
       loadNextChapter(userId);
     }
@@ -138,7 +139,7 @@ export default function ReaderView() {
   // 辅助函数：根据 hexagram ID 获取显示信息
   const getHexagramInfo = (id: string) => {
     // 这里可以扩展为更完整的映射，或者从后端获取
-    const map: Record<string, any> = {
+    const map: Record<string, { symbol: string, name: string, desc: string }> = {
       'Q1': { symbol: '乾', name: '乾卦', desc: '天行健，君子以自强不息' },
       'Q2': { symbol: '坤', name: '坤卦', desc: '地势坤，君子以厚德载物' },
       // ... 更多映射

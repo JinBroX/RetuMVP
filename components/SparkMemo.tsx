@@ -80,7 +80,7 @@ export default function SparkMemo() {
         {status === 'success' && "✅ 已保存！"}
       </button>
       
-      <p className="text-center text-xs text-gray-600 mt-4">Saved to Supabase 'assets' table</p>
+      <p className="text-center text-xs text-gray-600 mt-4">Saved to Supabase &apos;assets&apos; table</p>
     </div>
   );
 }

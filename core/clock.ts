@@ -1,5 +1,5 @@
 // lib/universe/clock.ts
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // 默认配置（当无法连接数据库时使用）
 const DEFAULT_CONFIG = {
@@ -17,7 +17,7 @@ interface WorldTimeState {
 }
 
 // 客户端单例
-let supabaseClient: any = null;
+let supabaseClient: SupabaseClient | null = null;
 
 function getSupabase() {
   if (!supabaseClient) {

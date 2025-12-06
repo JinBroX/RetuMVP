@@ -104,8 +104,9 @@ export default function AdminStudio() {
         status: 'refined', logs: ["✅ 模板生成完毕"] 
       });
 
-    } catch (e: any) {
-      updateDraft({ logs: [`❌ 错误: ${e.message}`] });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Unknown error';
+      updateDraft({ logs: [`❌ 错误: ${message}`] });
     } finally {
       setIsWorking(false);
     }

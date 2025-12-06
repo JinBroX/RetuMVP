@@ -50,7 +50,7 @@ export interface StoryData {
   title: string;
   content: string;
   options: StoryOption[];
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 export interface StoryOption {
