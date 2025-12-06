@@ -710,50 +710,74 @@
         }
         
         // 做出选择
-        function makeChoice(choiceId) {
-            const consequence = choiceConsequences[choiceId];
-            
+        async function makeChoice(choiceId) {
             // 显示加载状态
             const choiceCards = document.querySelectorAll('.choice-card');
             choiceCards.forEach(card => card.style.opacity = '0.5');
             
-            // 模拟API调用
-            setTimeout(() => {
-                // 更新状态显示
-                const statChangesDiv = document.getElementById('statChanges');
-                statChangesDiv.innerHTML = '';
+            const statUpdateDiv = document.getElementById('statUpdate');
+            statUpdateDiv.style.display = 'block';
+            statUpdateDiv.innerHTML = '<div style="text-align:center; padding:20px;">正在推演因果链...</div>';
+            statUpdateDiv.scrollIntoView({ behavior: 'smooth' });
+
+            try {
+                // 获取当前用户ID (模拟)
+                const uid = localStorage.getItem('zen_uid') || 'test_user';
                 
-                let html = '';
-                for (const [stat, value] of Object.entries(consequence)) {
-                    if (stat !== 'narrative') {
-                        const className = value >= 0 ? 'change-positive' : 'change-negative';
-                        const symbol = value >= 0 ? '+' : '';
-                        html += `
-                            <div class="stat-change">
-                                <span>${stat}:</span>
-                                <span class="change-value ${className}">${symbol}${value}</span>
+                // 调用真实API
+                const res = await fetch('/api/fetch-story', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        uid: uid,
+                        hexagramId: playerData.current_gua.id, // 传递当前卦象ID或让后端决定
+                        action: 'choice',
+                        choiceId: choiceId
+                    })
+                });
+
+                if (!res.ok) throw new Error(`API Error: ${res.status}`);
+                
+                const data = await res.json();
+                console.log('API Response:', data);
+
+                // 更新叙事内容
+                const storyDiv = document.querySelector('.story-text');
+                storyDiv.innerHTML = data.content.replace(/\n/g, '<br>');
+                
+                // 更新选项
+                const choicesDiv = document.querySelector('.choice-grid');
+                choicesDiv.innerHTML = '';
+                
+                if (data.options && data.options.length > 0) {
+                    data.options.forEach((opt, idx) => {
+                        const div = document.createElement('div');
+                        div.className = 'choice-card';
+                        div.onclick = () => makeChoice(idx);
+                        div.innerHTML = `
+                            <div class="choice-header">
+                                <span class="choice-id">0${idx + 1}</span>
+                                <span class="choice-title">${opt.text}</span>
                             </div>
                         `;
-                    }
+                        choicesDiv.appendChild(div);
+                    });
+                } else {
+                     choicesDiv.innerHTML = '<div style="padding:20px; text-align:center; color:#888;">(暂无更多选项，请刷新重试)</div>';
                 }
-                statChangesDiv.innerHTML = html;
+
+                // 隐藏加载/状态更新区
+                statUpdateDiv.style.display = 'none';
                 
-                // 显示状态更新
-                document.getElementById('statUpdate').style.display = 'block';
-                
-                // 滚动到更新区域
-                document.getElementById('statUpdate').scrollIntoView({ behavior: 'smooth' });
-                
-                // 重置选择卡片状态
+                // 滚动回顶部阅读新故事
+                document.querySelector('.main-content').scrollIntoView({ behavior: 'smooth' });
+
+            } catch (err) {
+                console.error('Error:', err);
+                statUpdateDiv.innerHTML = `<div style="color:red; text-align:center; padding:20px;">连接中断: ${err.message}</div>`;
+            } finally {
                 choiceCards.forEach(card => card.style.opacity = '1');
-                
-                // 在真实系统中，这里会调用API获取下一段叙事
-                console.log(`选择了选项 ${choiceId}:`, consequence);
-                
-                // 显示下一步按钮
-                showNextButton(choiceId);
-                
-            }, 1000);
+            }
         }
         
         function showNextButton(choiceId) {
