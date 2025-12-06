@@ -8,7 +8,8 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // 开发模式标志：如果为 true，将跳过扣费和数据库写入
-const DEV_MODE_SKIP_DB = false;
+// 自动检测开发模式，避免本地环境数据库连接问题
+const DEV_MODE_SKIP_DB = process.env.NODE_ENV === 'development' || false;
 
 // 辅助函数：生成长篇叙事
 function generateDetailedNarrative(
